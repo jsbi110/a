@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 실행 시 브라우저 탭 이름: ⇀ -->
+    <title>⇀</title>
+    <style>
+        /* 모든 요소의 여백 및 높이 엄격 초기화 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.0;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* 3줄 텍스트 컨테이너 - 줄간격 및 여백 완전 제로화 */
+        #terminal {
+            margin: 0;
+            padding: 0;
+            line-height: 1.0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .line {
+            display: block;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.0 !important;
+            height: 16px !important; /* 글자 크기와 동일하게 높이 고정하여 줄 간격 제거 */
+            font-size: 16px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="line1" class="line">최고점수 : 0.00</div>
+        <div id="line2" class="line">이전점수 : 0.00</div>
+        <div id="line3" class="line">⇀</div>
+    </div>
+
+    <script>
+        const ARROWS = [
+            { symbol: '⇀', key: 'ArrowRight' },
+            { symbol: '↼', key: 'ArrowLeft' },
+            { symbol: '↾', key: 'ArrowUp' },
+            { symbol: '⇃', key: 'ArrowDown' }
+        ];
+
+        let highScore = parseFloat(localStorage.getItem('cmd_arrow_highscore')) || 0.00;
+        let prevScore = 0.00;
+
+        let currentTarget = null;
+        let successCount = 0;
+        let startTime = null;
+        let isRunning = false;
+        let isEnded = false;
+
+        const elLine1 = document.getElementById('line1');
+        const elLine2 = document.getElementById('line2');
+        const elLine3 = document.getElementById('line3');
+
+        function getRandomArrow() {
+            return ARROWS[Math.floor(Math.random() * ARROWS.length)];
+        }
+
+        function formatNumber(num) {
+            return num.toFixed(2);
+        }
+
+        function render() {
+            elLine1.textContent = `최고점수 : ${formatNumber(highScore)}`;
+            elLine2.textContent = `이전점수 : ${formatNumber(prevScore)}`;
+            if (isEnded) {
+                elLine3.textContent = '종료되었습니다.';
+            } else if (currentTarget) {
+                elLine3.textContent = currentTarget.symbol;
+            }
+        }
+
+        function startNewRound() {
+            successCount = 0;
+            startTime = null;
+            isRunning = false;
+            isEnded = false;
+            currentTarget = getRandomArrow();
+            render();
+        }
+
+        function endRound() {
+            let score = 0.00;
+
+            if (isRunning && startTime && successCount > 0) {
+                const elapsedSeconds = (performance.now() - startTime) / 1000;
+                const cps = elapsedSeconds > 0 ? (successCount / elapsedSeconds) : 0;
+                score = successCount * cps;
+
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('cmd_arrow_highscore', highScore);
+                }
+            }
+
+            prevScore = score;
+            isEnded = true;
+            render();
+        }
+
+        function handleInput(keyName) {
+            // '종료되었습니다.' 상태에서는 아무 키(j, z, x, 방향키 등)나 누르면 단지 새 화살표를 표시하며 재시작
+            if (isEnded) {
+                startNewRound();
+                return;
+            }
+
+            // WASD 입력 매핑
+            let normalizedKey = keyName;
+            if (['w', 'W'].includes(keyName)) normalizedKey = 'ArrowUp';
+            if (['a', 'A'].includes(keyName)) normalizedKey = 'ArrowLeft';
+            if (['s', 'S'].includes(keyName)) normalizedKey = 'ArrowDown';
+            if (['d', 'D'].includes(keyName)) normalizedKey = 'ArrowRight';
+
+            // 스페이스바 입력 시 즉시 종료
+            if (keyName === ' ') {
+                endRound();
+                return;
+            }
+
+            // 방향키 및 WASD 입력 검증
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(normalizedKey)) {
+                if (normalizedKey === currentTarget.key) {
+                    // 첫 올바른 입력 시 타이머 시작
+                    if (!isRunning) {
+                        isRunning = true;
+                        startTime = performance.now();
+                    }
+                    successCount++;
+                    currentTarget = getRandomArrow();
+                    render();
+                } else {
+                    // 오답 입력 시 즉시 종료
+                    endRound();
+                }
+            }
+        }
+
+        // 키보드 이벤트 Listener (모든 키 입력 수용)
+        window.addEventListener('keydown', (e) => {
+            // 방향키 및 스페이스바 입력 시 브라우저 스크롤 방지
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                e.preventDefault();
+            }
+            handleInput(e.key);
+        });
+
+        // 초기 라운드 시작
+        startNewRound();
+    </script>
+</body>
+</html>
