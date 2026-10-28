@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 실행 시 브라우저 탭 이름: ⇀ -->
     <title>⇀</title>
     <style>
-        /* 모든 요소의 여백 및 높이 엄격 초기화 */
+        /* © 2026 jsbi110. All rights reserved. */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -29,7 +28,7 @@
             align-items: flex-start;
         }
 
-        /* 3줄 텍스트 컨테이너 - 줄간격 및 여백 완전 제로화 */
+        /* © 2026 jsbi110. All rights reserved. */
         #terminal {
             margin: 0;
             padding: 0;
@@ -43,7 +42,7 @@
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.0 !important;
-            height: 16px !important; /* 글자 크기와 동일하게 높이 고정하여 줄 간격 제거 */
+            height: 16px !important; /* © 2026 jsbi110. All rights reserved. */
             font-size: 16px;
             white-space: pre;
         }
@@ -124,26 +123,26 @@
         }
 
         function handleInput(keyName) {
-            // '종료되었습니다.' 상태에서는 아무 키(j, z, x, 방향키 등)나 누르면 단지 새 화살표를 표시하며 재시작
+            // © 2026 jsbi110. All rights reserved.
             if (isEnded) {
                 startNewRound();
                 return;
             }
 
-            // WASD 입력 매핑
+            // © 2026 jsbi110. All rights reserved.
             let normalizedKey = keyName;
             if (['w', 'W'].includes(keyName)) normalizedKey = 'ArrowUp';
             if (['a', 'A'].includes(keyName)) normalizedKey = 'ArrowLeft';
             if (['s', 'S'].includes(keyName)) normalizedKey = 'ArrowDown';
             if (['d', 'D'].includes(keyName)) normalizedKey = 'ArrowRight';
 
-            // 스페이스바 입력 시 즉시 종료
+            // © 2026 jsbi110. All rights reserved.
             if (keyName === ' ') {
                 endRound();
                 return;
             }
 
-            // 방향키 및 WASD 입력 검증
+            // © 2026 jsbi110. All rights reserved.
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(normalizedKey)) {
                 if (normalizedKey === currentTarget.key) {
                     // 첫 올바른 입력 시 타이머 시작
@@ -155,22 +154,22 @@
                     currentTarget = getRandomArrow();
                     render();
                 } else {
-                    // 오답 입력 시 즉시 종료
+                    // © 2026 jsbi110. All rights reserved.
                     endRound();
                 }
             }
         }
 
-        // 키보드 이벤트 Listener (모든 키 입력 수용)
+        // © 2026 jsbi110. All rights reserved.
         window.addEventListener('keydown', (e) => {
-            // 방향키 및 스페이스바 입력 시 브라우저 스크롤 방지
+            // © 2026 jsbi110. All rights reserved.
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
             }
             handleInput(e.key);
         });
 
-        // 초기 라운드 시작
+        // © 2026 jsbi110. All rights reserved.
         startNewRound();
     </script>
 </body>
